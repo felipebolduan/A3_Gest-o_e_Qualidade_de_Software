@@ -1,0 +1,5 @@
+package.json
+package-lock.json
+firebase-key.json
+.env
+node_modules
