@@ -7,22 +7,17 @@ const { getFirestore } = require('firebase-admin/firestore');
 const router = express.Router();
 const JWT_SECRET = 'key_projeto_a3_jean'; 
 
-// Inicializa Firebase
-//initializeApp();
-const db = getFirestore();
+const dataBase = getFirestore();
 
-// Endpoint de login
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validação básica
         if (!email || !password) {
             return res.status(400).json({ message: 'Email e senha são obrigatórios' });
         }
 
-        // Verifica se o usuário existe
-        const usersRef = db.collection('users');
+        const usersRef = dataBase.collection('users');
         const snapshot = await usersRef.where('email', '==', email).get();
 
         if (snapshot.empty) {
@@ -32,14 +27,12 @@ router.post('/login', async (req, res) => {
         const userDoc = snapshot.docs[0];
         const userData = userDoc.data();
 
-        // Compara a senha fornecida com a senha criptografada
         const passwordMatch = await bcrypt.compare(password, userData.password);
 
         if (!passwordMatch) {
             return res.status(401).json({ message: 'Senha incorreta' });
         }
 
-        // Gera o token JWT
         const token = jwt.sign({ uid: userDoc.id }, JWT_SECRET, { expiresIn: '1h' });
 
         return res.status(200).json({ token });
@@ -53,23 +46,19 @@ router.post('/register', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validação básica
         if (!email || !password) {
             return res.status(400).json({ message: 'Email e senha são obrigatórios' });
         }
 
-        // Verifica se o usuário já existe
-        const usersRef = db.collection('users');
+        const usersRef = dataBase.collection('users');
         const snapshot = await usersRef.where('email', '==', email).get();
 
         if (!snapshot.empty) {
             return res.status(400).json({ message: 'Usuário já existe' });
         }
 
-        // Criptografa a senha
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Salva o usuário no Firestore
         const newUser = {
             email,
             password: hashedPassword,
@@ -88,4 +77,4 @@ router.post('/register', async (req, res) => {
     }
 });
 
-module.exports = router;
+// module.exports = router;
