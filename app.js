@@ -1,19 +1,10 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const admin = require('firebase-admin');
-const dotenv = require('dotenv');
+require('dotenv').config()
+const app = require("./config/server")
+require("./config/firebase")
 
-dotenv.config();
+const PORT = 3000
 
-admin.initializeApp({
-  credential: admin.credential.cert(require('./firebase-key.json')),
-});
+app.use('/auth', require('./routes/authRoutes'))
+app.use('/tasks', require('./routes/tasks'))
 
-const app = express();
-app.use(bodyParser.json());
-
-app.use('/auth', require('./routes/auth'));
-app.use('/tasks', require('./routes/tasks'));
-
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
