@@ -1,6 +1,12 @@
 const { getFirestore } = require('firebase-admin/firestore');
-const db = getFirestore();
-const tasksCollection = db.collection('tasks');
+
+  function getDb() {
+    return getFirestore()
+  }
+
+  function getTasksCollection() {
+    return getDb().collection('tasks')
+  }
 
 function validateTask({ title, description, date, hour }) {
   if (!title || !description || !date || !hour) {
@@ -35,14 +41,14 @@ function validateUpdate({ date, hour }) {
 }
 
 async function getAllTasks(userId) {
-  const snapshot = await tasksCollection.where('userId', '==', userId).get();
+  const snapshot = await getTasksCollection().where('userId', '==', userId).get();
   const tasks = [];
   snapshot.forEach((doc) => tasks.push({ id: doc.id, ...doc.data() }));
   return tasks;
 }
 
 async function getTaskById(id) {
-  const doc = await tasksCollection.doc(id).get();
+  const doc = await getTasksCollection().doc(id).get();
   if (!doc.exists) return null;
   return { id: doc.id, ...doc.data() };
 }
@@ -70,12 +76,12 @@ async function updateTask(id, fields) {
   if (fields.hour) updatedFields.hour = fields.hour;
   if (fields.completed !== undefined) updatedFields.completed = fields.completed;
 
-  await tasksCollection.doc(id).update(updatedFields);
+  await getTasksCollection().doc(id).update(updatedFields);
   return updatedFields;
 }
 
 async function deleteTask(id) {
-  await tasksCollection.doc(id).delete();
+  await getTasksCollection().doc(id).delete();
 }
 
 module.exports = {
