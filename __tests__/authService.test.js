@@ -3,6 +3,19 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { getFirestore } = require('firebase-admin/firestore');
 
+jest.mock('../config/firebase', () => ({
+  db: {
+    collection: jest.fn(() => ({
+      where: jest.fn(() => ({
+        get: jest.fn(async () => ({
+          empty: false,
+          docs: [{ id: '123', data: () => ({ email: 'teste@teste.com', password: '1234' }) }],
+        })),
+      })),
+    })),
+  },
+}));
+
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 jest.mock('firebase-admin/firestore', () => ({
