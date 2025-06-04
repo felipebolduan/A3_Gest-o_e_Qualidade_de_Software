@@ -4,8 +4,12 @@ const jwt = require("jsonwebtoken")
 
 const JWT_SECRET = process.env.JWT_SECRET || "key_projeto_a3_poyatos"
 
+function getDb() {
+  return getFirestore();
+}
+
 async function findUserByEmail(email) {
-    const db = getFirestore()
+    const db = getDb()
     const snapshot = await db.collection("users").where("email", "==", email).get()
     if (snapshot.empty) return null
     const doc = snapshot.docs[0]
@@ -48,7 +52,8 @@ module.exports = {
       password: hashedPassword,
       createdAt: new Date().toISOString(),
     };
-
+    
+    const db = getDb()
     const result = await db.collection('users').add(newUser);
     return {
       message: 'Usuário criado com sucesso',
